@@ -33,11 +33,19 @@ public class Main extends Application{
 
     public static ArrayList<String> level = new ArrayList<String>();
     public static ArrayList<Tile> tiles = new ArrayList<Tile>();
+    public static Tile grid[][] = new Tile[4][4];
     int tileCounter = 0;
     String type;
     String prop;
     String imageName;
     double moveX, moveY;
+    double releasedX, releasedY;
+    int releasedItemI, releasedItemJ;
+    double pressedX, pressedY;
+    int pressedItemI, pressedItemJ;
+    Tile tempObj = new Tile();
+    double tempX, tempY;
+
 
 
     private Parent createContent() throws FileNotFoundException {
@@ -49,27 +57,48 @@ public class Main extends Application{
                 type = level.get(tileCounter);
                 prop = level.get(tileCounter+1);
                 imageName = "images/" + type + prop + ".png";
-
                 FileInputStream input = new FileInputStream(imageName);
                 Image image = new Image(input);
                 ImagePattern image_pattern = new ImagePattern(image);
-                Tile tile = new Tile(image_pattern);
+                Tile tile = new Tile(image_pattern, type, prop);
                 tile.setTranslateX(j * 80);
                 tile.setTranslateY(i * 80);
                 root.getChildren().add(tile);
                 tileCounter = tileCounter+2;
                 tiles.add(tile);
-            /*    for(int i = 0 ; i < 16 ; i++) {
-                    tiles.get(i).get
-                } */
+                grid[i][j] = tile;
+
                 tile.setOnMouseDragged(e ->{
-                   // tile.setTranslateX(e.getSceneX() - moveX);
-                    // tile.setTranslateY(e.getSceneY() - moveY);
+                    tile.setTranslateX(e.getSceneX() - moveX);
+                     tile.setTranslateY(e.getSceneY() - moveY);
                   //  System.out.println(tile.getTranslateX());
                 });
 
                 tile.setOnMouseReleased(e ->{
-                    System.out.println(e.getSceneX());
+                   // System.out.println("x="+e.getSceneX());
+                    //System.out.println("y="+e.getSceneY());
+                    releasedX = e.getSceneX();
+                    releasedY = e.getSceneY();
+                    releasedItemJ = (int) (releasedX/80);
+                    releasedItemI = (int) (releasedY/80);
+                    System.out.println("released i => "+releasedItemI + "released j =>" + releasedItemJ);
+                    System.out.println("pressed i => "+pressedItemI + "pressed j =>" + pressedItemJ);
+
+                    grid[pressedItemI][pressedItemJ].setTranslateX(grid[releasedItemI][releasedItemJ].getTranslateX());
+                    grid[pressedItemI][pressedItemJ].setTranslateY(grid[releasedItemI][releasedItemJ].getTranslateY());
+                    grid[releasedItemI][releasedItemJ].setTranslateX(tempX);
+                    grid[releasedItemI][releasedItemJ].setTranslateY(tempY);
+
+                    tempObj = grid[releasedItemI][releasedItemJ];
+                    grid[releasedItemI][releasedItemJ] = grid[pressedItemI][pressedItemJ];
+                    grid[pressedItemI][pressedItemJ] = tempObj;
+
+                    for(int o=0; o<4; o++){
+                        for(int k=0; k<4; k++){
+                            System.out.println(grid[o][k].getTypeProp());
+                        }
+                    }
+
                 });
 
 
@@ -80,6 +109,17 @@ public class Main extends Application{
                 tile.setOnMousePressed(e->{
                     moveX = e.getX();
                     moveY = e.getY();
+                   // System.out.println("x="+e.getSceneX());
+                    //System.out.println("y="+e.getSceneY());
+                    pressedX = e.getSceneX();
+                    pressedY = e.getSceneY();
+                    pressedItemJ = (int) (pressedX/80);
+                    pressedItemI = (int) (pressedY/80);
+                    tempX = grid[pressedItemI][pressedItemJ].getTranslateX();
+                    tempY = grid[pressedItemI][pressedItemJ].getTranslateY();
+                   // System.out.println("i => "+pressedItemI + " j =>" + pressedItemJ);
+
+
                 });
 
 
@@ -87,6 +127,10 @@ public class Main extends Application{
 
             }
         }
+
+
+      //  grid[1][3].setTranslateX(250);
+
 
         return root;
     }
@@ -100,13 +144,48 @@ public class Main extends Application{
     }
 
     private class Tile extends StackPane{
-        public Tile(ImagePattern pattern){
+        private String type;
+        private String prop;
+        private String typeProp;
+
+        public Tile(ImagePattern pattern, String type, String prop){
+            this.type = type;
+            this.prop = prop;
+            typeProp = type + prop;
             Rectangle rec = new Rectangle(80,80);
             rec.setFill(null);
             rec.setStroke(Color.BLACK);
             rec.setFill(pattern);
-          //  setAlignment(Pos.CENTER);
-           getChildren().addAll(rec);
+            //setAlignment(Pos.CENTER);
+            getChildren().addAll(rec);
+        }
+
+        public Tile(){
+
+        }
+
+        public String getProp() {
+            return prop;
+        }
+
+        public void setProp(String prop) {
+            this.prop = prop;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getTypeProp() {
+            return typeProp;
+        }
+
+        public void setTypeProp(String typeProp) {
+            this.typeProp = typeProp;
         }
     }
 
@@ -123,6 +202,8 @@ public class Main extends Application{
             for(int i=1; i<3; i++){
                 level.add(a[i]);
             }
+
+
         }
 
 
