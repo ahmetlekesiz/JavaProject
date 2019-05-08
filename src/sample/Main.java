@@ -14,6 +14,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -31,6 +32,7 @@ import java.awt.event.MouseMotionListener;
 public class Main extends Application{
 
     public static ArrayList<String> level = new ArrayList<String>();
+    public static ArrayList<Tile> tiles = new ArrayList<Tile>();
     int tileCounter = 0;
     String type;
     String prop;
@@ -56,16 +58,23 @@ public class Main extends Application{
                 tile.setTranslateY(i * 80);
                 root.getChildren().add(tile);
                 tileCounter = tileCounter+2;
-
-
-
+                tiles.add(tile);
+            /*    for(int i = 0 ; i < 16 ; i++) {
+                    tiles.get(i).get
+                } */
                 tile.setOnMouseDragged(e ->{
-                    tile.setTranslateX(e.getSceneX() - moveX);
-                    tile.setTranslateY(e.getSceneY() - moveY);
-
+                   // tile.setTranslateX(e.getSceneX() - moveX);
+                    // tile.setTranslateY(e.getSceneY() - moveY);
+                  //  System.out.println(tile.getTranslateX());
                 });
 
-                tile.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> System.out.println(event.getSceneX()));
+                tile.setOnMouseReleased(e ->{
+                    System.out.println(e.getSceneX());
+                });
+
+
+
+           //     tile.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> System.out.println(event.getSceneX()));
 
 
                 tile.setOnMousePressed(e->{
