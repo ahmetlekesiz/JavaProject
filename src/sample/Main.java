@@ -230,7 +230,7 @@ public class Main extends Application{
     }
 
     public static void main(String[] args) throws IOException {
-        String fileName = "levels/level1.txt";
+        String fileName = "levels/level2.txt";
         File file = new File(fileName);
 
         BufferedReader br = new BufferedReader(new FileReader(file));
