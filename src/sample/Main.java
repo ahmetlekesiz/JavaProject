@@ -1,10 +1,13 @@
 package sample;
 
+import javafx.animation.PathTransition;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -16,10 +19,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,7 +51,6 @@ public class Main extends Application{
     double tempX, tempY;
 
 
-
     private Parent createContent() throws FileNotFoundException {
         Pane root = new Pane();
         root.setPrefSize(320,320);
@@ -69,8 +72,13 @@ public class Main extends Application{
                 grid[i][j] = tile;
 
                 tile.setOnMouseDragged(e ->{
-                    tile.setTranslateX(e.getSceneX() - moveX);
-                     tile.setTranslateY(e.getSceneY() - moveY);
+                    if(grid[pressedItemI][pressedItemJ].getTypeProp().equals("EmptyFree") == false && grid[pressedItemI][pressedItemJ].getType().equals("End") == false && grid[pressedItemI][pressedItemJ].getType().equals("PipeStatic") == false && grid[pressedItemI][pressedItemJ].getType().equals("Starter") == false ) {
+                        System.out.println(moveX);
+                        tile.setTranslateX(e.getSceneX() - moveX);
+                        tile.setTranslateY(e.getSceneY() - moveY);
+
+                    }
+
                   //  System.out.println(tile.getTranslateX());
                 });
 
@@ -83,27 +91,58 @@ public class Main extends Application{
                     releasedItemI = (int) (releasedY/80);
                     System.out.println("released i => "+releasedItemI + "released j =>" + releasedItemJ);
                     System.out.println("pressed i => "+pressedItemI + "pressed j =>" + pressedItemJ);
+                    if(grid[pressedItemI][pressedItemJ].getTypeProp().equals("EmptyFree") == false && grid[pressedItemI][pressedItemJ].getType().equals("End") == false && grid[pressedItemI][pressedItemJ].getType().equals("PipeStatic") == false && grid[pressedItemI][pressedItemJ].getType().equals("Starter") == false) {
+                        if(releasedItemI - pressedItemI <= 1 && releasedItemI - pressedItemI >= -1 && releasedItemJ - pressedItemJ <= 1 && releasedItemJ - pressedItemJ >= -1 &&  grid[releasedItemI][releasedItemJ].getTypeProp().equals("EmptyFree") == true){
+                             if(pressedItemI == releasedItemI || pressedItemJ == releasedItemJ){
+                                 grid[pressedItemI][pressedItemJ].setTranslateX(grid[releasedItemI][releasedItemJ].getTranslateX());
+                                 grid[pressedItemI][pressedItemJ].setTranslateY(grid[releasedItemI][releasedItemJ].getTranslateY());
+                                 grid[releasedItemI][releasedItemJ].setTranslateX(tempX);
+                                 grid[releasedItemI][releasedItemJ].setTranslateY(tempY);
 
-                    grid[pressedItemI][pressedItemJ].setTranslateX(grid[releasedItemI][releasedItemJ].getTranslateX());
-                    grid[pressedItemI][pressedItemJ].setTranslateY(grid[releasedItemI][releasedItemJ].getTranslateY());
-                    grid[releasedItemI][releasedItemJ].setTranslateX(tempX);
-                    grid[releasedItemI][releasedItemJ].setTranslateY(tempY);
+                                 tempObj = grid[releasedItemI][releasedItemJ];
+                                 grid[releasedItemI][releasedItemJ] = grid[pressedItemI][pressedItemJ];
+                                 grid[pressedItemI][pressedItemJ] = tempObj;
+                             }else{
+                                 tile.setTranslateX(tempX);
+                                 tile.setTranslateY(tempY);
+                             }
 
-                    tempObj = grid[releasedItemI][releasedItemJ];
-                    grid[releasedItemI][releasedItemJ] = grid[pressedItemI][pressedItemJ];
-                    grid[pressedItemI][pressedItemJ] = tempObj;
-
-                    for(int o=0; o<4; o++){
-                        for(int k=0; k<4; k++){
-                            System.out.println(grid[o][k].getTypeProp());
+                        }else{
+                            tile.setTranslateX(tempX);
+                            tile.setTranslateY(tempY);
                         }
+
+                    }
+
+                    if(grid[1][0].getTypeProp().equals("PipeVertical") == true
+                                && grid[2][0].getTypeProp().equals("PipeVertical") == true
+                                    && grid[3][0].getTypeProp().equals("Pipe01") == true
+                                        && grid[3][1].getTypeProp().equals("PipeHorizontal") == true
+                                            && grid[1][0].getTypeProp().equals("PipeVertical") == true){
+                        System.out.println("helal amk ilk level bitti");
+                        final Circle cPath = new Circle (35, 35, 10);
+                        cPath.setFill(Color.YELLOW);
+
+                        Path path = new Path();
+
+                        path.getElements().add(new MoveTo(35f,35f));
+                        path.getElements().add(new LineTo(35f,240f));
+
+                        PathTransition pathTransition = new PathTransition();
+                        pathTransition.setDuration(Duration.millis(4000));
+                        pathTransition.setPath(path);
+                        pathTransition.setNode(cPath);
+                        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+                        pathTransition.setCycleCount(Timeline.INDEFINITE);
+                        pathTransition.setAutoReverse(true);
+                        pathTransition.play();
+
+                        Group group = new Group(cPath);
+                        root.getChildren().add(cPath);
+
                     }
 
                 });
-
-
-
-           //     tile.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> System.out.println(event.getSceneX()));
 
 
                 tile.setOnMousePressed(e->{
@@ -117,6 +156,7 @@ public class Main extends Application{
                     pressedItemI = (int) (pressedY/80);
                     tempX = grid[pressedItemI][pressedItemJ].getTranslateX();
                     tempY = grid[pressedItemI][pressedItemJ].getTranslateY();
+
                    // System.out.println("i => "+pressedItemI + " j =>" + pressedItemJ);
 
 
@@ -190,7 +230,7 @@ public class Main extends Application{
     }
 
     public static void main(String[] args) throws IOException {
-        String fileName = "levels/level3.txt";
+        String fileName = "levels/level1.txt";
         File file = new File(fileName);
 
         BufferedReader br = new BufferedReader(new FileReader(file));
