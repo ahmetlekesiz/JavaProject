@@ -18,9 +18,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-
-import javax.swing.*;
-import java.awt.event.ActionListener;
 import java.io.*;
 
 
@@ -45,7 +42,34 @@ public class Main extends Application{
     AnimationTimer timer3;
     AnimationTimer timer4;
     AnimationTimer timer1a2;
+    AnimationTimer timer5;
     Boolean btnClicked = false;
+
+    private Parent createBegin(Stage primaryStage) throws IOException {
+        Pane root = new Pane();
+        root.setPrefSize(320,320);
+        //Creating a Text object
+        Text text = new Text();
+        Button btn = new Button("hadi bakim");
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                try {
+                    primaryStage.setScene(new Scene(createContent()));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        text.setText("Oyuna hoşgeldin qnq, \n Başlamaya hazır mısın?");
+        text.setX(50);
+        text.setY(50);
+        btn.setLayoutX(50);
+        btn.setLayoutY(150);
+
+        root.getChildren().add(text);
+        root.getChildren().add(btn);
+        return root;
+    }
 
     private Parent createContent() throws IOException {
         System.out.println("level: " + level);
@@ -74,6 +98,7 @@ public class Main extends Application{
                         tile.toFront();
                         tile.setTranslateX(e.getSceneX() - moveX);
                         tile.setTranslateY(e.getSceneY() - moveY);
+
                     }
                 });
 
@@ -153,8 +178,6 @@ public class Main extends Application{
                     }
                 });
 
-
-
                 tile.setOnMousePressed(e->{
                     moveX = e.getX();
                     moveY = e.getY();
@@ -168,7 +191,6 @@ public class Main extends Application{
             }
         }
         tileCounter = 0;
-
         return root;
     }
 
@@ -177,28 +199,48 @@ public class Main extends Application{
         root.setPrefSize(320,320);
         //Creating a Text object
         Text text = new Text();
-        Button btn = new Button("click me!");
+        Button btn = new Button("Hell yeah!");
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 btnClicked = true;
             }
         });
-        //Setting the text to be added.
-        text.setText("Hello how are you");
-
-        //setting the position of the text
-        text.setX(50);
+        text.setText("Congratulations! You are done with level " + (level-1)  + "\n Are you ready for Level " + level);
+        text.setX(20);
         text.setY(50);
+        btn.setLayoutX(50);
+        btn.setLayoutY(150);
         root.getChildren().add(text);
         root.getChildren().add(btn);
         return root;
     }
 
+    private Parent createFinish(Stage primaryStage) throws IOException {
+        Pane root = new Pane();
+        root.setPrefSize(320,320);
+        //Creating a Text object
+        Text text = new Text();
+        Button btn = new Button("çıkış");
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                primaryStage.close();
+            }
+        });
+        text.setText("Helal len bitti oyun ");
+        text.setX(50);
+        text.setY(50);
+        btn.setLayoutX(50);
+        btn.setLayoutY(150);
+
+        root.getChildren().add(text);
+        root.getChildren().add(btn);
+        return root;
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
             primaryStage.setTitle("Rolling Puzzle Game");
-            primaryStage.setScene(new Scene(createContent()));
+            primaryStage.setScene(new Scene(createBegin(primaryStage)));
             primaryStage.setResizable(false);
             primaryStage.show();
 
@@ -207,22 +249,7 @@ public class Main extends Application{
             public void handle(long now) {
                 if(level==2){
                     try {
-                        primaryStage.setScene(new Scene(createMiddle()));
-                        timer1a2 = new AnimationTimer() {
-                            @Override
-                            public void handle(long now) {
-                                if(btnClicked == true){
-                                    try {
-                                        primaryStage.setScene(new Scene(createContent()));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    timer1a2.stop();
-                                }
-
-                            }
-                        };
-                        timer1a2.start();
+                        createMiddleScene(primaryStage);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -234,7 +261,7 @@ public class Main extends Application{
                             public void handle(long now) {
                                 if(level==3){
                                     try {
-                                        primaryStage.setScene(new Scene(createContent()));
+                                        createMiddleScene(primaryStage);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -246,7 +273,7 @@ public class Main extends Application{
                                         public void handle(long now) {
                                             if(level==4){
                                                 try {
-                                                    primaryStage.setScene(new Scene(createContent()));
+                                                    createMiddleScene(primaryStage);
                                                 } catch (IOException e) {
                                                     e.printStackTrace();
                                                 }
@@ -258,17 +285,32 @@ public class Main extends Application{
                                                     public void handle(long now) {
                                                         if(level==5){
                                                             try {
-                                                                primaryStage.setScene(new Scene(createContent()));
+                                                                createMiddleScene(primaryStage);
                                                             } catch (IOException e) {
                                                                 e.printStackTrace();
                                                             }
                                                             primaryStage.show();
                                                             timer4.stop();
+                                                            timer5 = new AnimationTimer() {
+                                                                @Override
+                                                                public void handle(long now) {
+                                                                    if(level==6){
+                                                                        try {
+                                                                            System.out.println("burdayım");
+                                                                            createMiddleScene(primaryStage);
+                                                                        } catch (IOException e) {
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                        primaryStage.show();
+                                                                        timer5.stop();
+                                                                    }
+                                                                }
+                                                            };
+                                                            timer5.start();
                                                         }
                                                     }
                                                 };
                                                 timer4.start();
-
                                             }
 
                                         }
@@ -280,10 +322,33 @@ public class Main extends Application{
                         };
                         timer2.start();
                 }
-
             }
         };
         timer.start();
+    }
+
+    public void createMiddleScene(Stage primaryStage) throws IOException {
+        if(level<6){
+            primaryStage.setScene(new Scene(createMiddle()));
+        }else{
+            primaryStage.setScene(new Scene(createFinish(primaryStage)));
+        }
+        timer1a2 = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if(btnClicked == true){
+                    try {
+                        btnClicked = false;
+                        primaryStage.setScene(new Scene(createContent()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    timer1a2.stop();
+                }
+
+            }
+        };
+        timer1a2.start();
     }
 
     public void fileReader() throws IOException {
