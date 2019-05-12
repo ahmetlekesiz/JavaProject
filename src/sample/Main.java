@@ -4,13 +4,16 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
@@ -18,7 +21,13 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
+
 import java.io.*;
+
+import static javafx.scene.media.MediaPlayer.INDEFINITE;
 
 
 public class Main extends Application{
@@ -36,21 +45,123 @@ public class Main extends Application{
     private int pressedItemI, pressedItemJ;
     private Tile tempObj = new Tile();
     private double tempX, tempY;
-    private static int level = 1;
+    private static int level = 5;
     AnimationTimer timer;
     AnimationTimer timer2;
     AnimationTimer timer3;
     AnimationTimer timer4;
     AnimationTimer timer1a2;
     AnimationTimer timer5;
-    Boolean btnClicked = false;
+    private Boolean btnClicked = false;
+    private int moveCounter = 0;
+    private int movesArray[] = new int[5];
+    FileInputStream input3;
+    FileInputStream input4;
 
     private Parent createBegin(Stage primaryStage) throws IOException {
         Pane root = new Pane();
         root.setPrefSize(320,320);
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(214, 214, 214), CornerRadii.EMPTY, Insets.EMPTY)));
+        //Creating a Text object
+
+        Button btn = new Button("Go to Story");
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                try {
+                    primaryStage.setScene(new Scene(createStory(primaryStage)));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        btn.setLayoutX(110);
+        btn.setLayoutY(250);
+
+        try {
+            input3 = new FileInputStream("images/starter.gif");
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+
+
+        Label lb1 = new Label ("SPIDERMAN SAVING MR. STARK");
+        root.getChildren().add(lb1);
+        lb1.setTextFill(Color.RED);
+        lb1.setTranslateX(50);
+        lb1.setTranslateY(20);
+
+        Label lb2 = new Label ("In this game, you will be helping to \nSpiderman for saving Mr. Stark. \nFor that, you need to solve the 5 puzzles,\nGood luck! ");
+        root.getChildren().add(lb2);
+        lb2.setTextFill(Color.BLACK);
+        lb2.setTranslateX(20);
+        lb2.setTranslateY(180);
+
+        try {
+            input4 = new FileInputStream("images/starter.jpg");
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        Image jpg = new Image(input4);
+        ImageView starterJPG = new ImageView(jpg);
+        starterJPG.setFitHeight(124);
+        starterJPG.setFitWidth(220);
+        Label lb3 = new Label ("",starterJPG);
+        root.getChildren().add(lb3);
+        lb3.setTranslateX(40);
+        lb3.setTranslateY(40);
+
+
+
+        root.getChildren().add(btn);
+        return root;
+    }
+
+    private Parent createStory(Stage primaryStage) throws IOException {
+        Pane root = new Pane();
+        root.setPrefSize(600,350);
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(255, 255, 255), CornerRadii.EMPTY, Insets.EMPTY)));
         //Creating a Text object
         Text text = new Text();
-        Button btn = new Button("hadi bakim");
+        Button btn = new Button("Start Game");
+        Rectangle rec = new Rectangle(450,226);
+
+        String path1 = "sounds/spiderman.mp3";
+
+        Media media = new Media(new File(path1).toURI().toString());
+
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        new Thread(String.valueOf(mediaPlayer)).start();
+        int s = INDEFINITE;
+        mediaPlayer.setCycleCount(s);
+        mediaPlayer.play();
+        mediaPlayer.setAutoPlay(true);
+        mediaPlayer.setVolume(0.01);
+        MediaView mediaView = new MediaView(mediaPlayer);
+
+        FileInputStream input = new FileInputStream("images/story.png");
+        Image image = new Image(input);
+        ImagePattern pattern = new ImagePattern(image);
+        rec.setFill(pattern);
+        Path path = new Path();
+
+        path.getElements().add(new MoveTo(300f, 450));
+        path.getElements().add(new LineTo(300f, 200f));
+
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(Duration.millis(10000));
+        pathTransition.setPath(path);
+        pathTransition.setNode(rec);
+        pathTransition.setCycleCount(1);
+        pathTransition.setAutoReverse(true);
+
+        pathTransition.play();
+      /*  pathTransition.statusProperty().addListener((obs, oldStatus, newStatus) -> {
+            if (newStatus == Animation.Status.STOPPED) {
+                level++;
+            }
+        });*/
+        root.getChildren().add(rec);
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 try {
@@ -60,23 +171,44 @@ public class Main extends Application{
                 }
             }
         });
-        text.setText("Oyuna hoşgeldin qnq, \n Başlamaya hazır mısın?");
-        text.setX(50);
-        text.setY(50);
-        btn.setLayoutX(50);
-        btn.setLayoutY(150);
+        text.setText("STORY OF SAVING MR. STARK");
+        text.setX(200);
+        text.setY(30);
+        btn.setLayoutX(250);
+        btn.setLayoutY(45);
 
         root.getChildren().add(text);
         root.getChildren().add(btn);
+        root.getChildren().add(mediaView);
         return root;
     }
+
 
     private Parent createContent() throws IOException {
         System.out.println("level: " + level);
         fileReader();
-        System.out.println();
         Pane root = new Pane();
-        root.setPrefSize(320,320);
+        Text textArea = new Text();
+        root.setPrefSize(320,400);
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0), CornerRadii.EMPTY, Insets.EMPTY)));
+
+        Label lb1 = new Label ("Level: " + level + "\n" + "Move Counter: " + moveCounter);
+        root.getChildren().add(lb1);
+        lb1.setTextFill(Color.WHITE);
+        lb1.setTranslateX(100);
+        lb1.setTranslateY(340);
+
+
+
+        Rectangle circle = new Rectangle(50,50);
+        circle.setX(15);
+        circle.setY(20);
+        FileInputStream input2 = new FileInputStream("images/spider.png");
+        Image image2 = new Image(input2);
+        ImagePattern imgpat = new ImagePattern(image2);
+        circle.setFill(imgpat);
+        Group rot = new Group(circle);
+        root.getChildren().add(rot);
         for(int i=0; i<4; i++){
             for(int j=0; j<4; j++){
                 type = levels[tileCounter];
@@ -94,11 +226,9 @@ public class Main extends Application{
 
                 tile.setOnMouseDragged(e ->{
                     if(!grid[pressedItemI][pressedItemJ].getTypeProp().equals("EmptyFree") && !grid[pressedItemI][pressedItemJ].getType().equals("End") && !grid[pressedItemI][pressedItemJ].getType().equals("PipeStatic") && !grid[pressedItemI][pressedItemJ].getType().equals("Starter")) {
-                        System.out.println(moveX);
                         tile.toFront();
                         tile.setTranslateX(e.getSceneX() - moveX);
                         tile.setTranslateY(e.getSceneY() - moveY);
-
                     }
                 });
 
@@ -120,6 +250,10 @@ public class Main extends Application{
                                  tempObj = grid[releasedItemI][releasedItemJ];
                                  grid[releasedItemI][releasedItemJ] = grid[pressedItemI][pressedItemJ];
                                  grid[pressedItemI][pressedItemJ] = tempObj;
+
+                                 moveCounter++;
+                                 lb1.setText("Level: " + level + "\n" + "Move Counter: " + moveCounter);
+                                 System.out.println("moveCounter: "+moveCounter);
                              }else{
                                  tile.setTranslateX(tempX);
                                  tile.setTranslateY(tempY);
@@ -140,30 +274,62 @@ public class Main extends Application{
                             && grid[2][1].getTypeProp().equals("PipeHorizontal")
                             && grid[2][2].getTypeProp().equals("PipeHorizontal")
                             && grid[2][3].getTypeProp().equals("Pipe00")) ||
-                                    (grid[2][0].getTypeProp().equals("PipeStatic01")
-                                    && grid[2][1].getTypeProp().equals("PipeHorizontal")
-                                    && grid[2][2].getTypeProp().equals("PipeHorizontal")
+                            (grid[2][0].getTypeProp().equals("PipeStatic01") && grid[2][1].getTypeProp().equals("PipeHorizontal") && grid[2][2].getTypeProp().equals("PipeHorizontal")
                                     && grid[2][3].getTypeProp().equals("Pipe00"))){
-                        final Circle cPath = new Circle (35, 35, 10);
-                        cPath.setFill(Color.YELLOW);
 
+                        Rectangle cPath = new Rectangle(50,50);
+                        cPath.setX(15);
+                        cPath.setY(20);
+                        try {
+                            input3 = new FileInputStream("images/spider.png");
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                        }
+                        Image image3 = new Image(input3);
+                        ImagePattern imgpat2 = new ImagePattern(image3);
+                        cPath.setFill(imgpat2);
+                        Group rot2 = new Group(cPath);
+                        root.getChildren().add(rot2);
+
+                        circle.setVisible(false);
                         Path path = new Path();
                         if(level<4) {
-                            path.getElements().add(new MoveTo(35f, 35f));
-                            path.getElements().add(new LineTo(35f, 280f));
-                            path.getElements().add(new LineTo(300f, 280f));
+                            ArcTo arcTo = new ArcTo();
+                            arcTo.setX(80f);
+                            arcTo.setY(280f);
+                            arcTo.setRadiusX(40f);
+                            arcTo.setRadiusY(40f);
+
+                            path.getElements().add(new MoveTo(40f, 35f));
+                            path.getElements().add(new LineTo(40f, 240f));
+                            path.getElements().add(arcTo);
+                            path.getElements().add(new LineTo(288f, 280f));
                         }else{
-                            path.getElements().add(new MoveTo(35f, 35f));
-                            path.getElements().add(new LineTo(35f, 180f));
-                            path.getElements().add(new LineTo(300f, 180f));
-                            path.getElements().add(new LineTo(300f, 105f));
+                            ArcTo arcTo2 = new ArcTo();
+                            arcTo2.setX(80f);
+                            arcTo2.setY(200f);
+                            arcTo2.setRadiusX(40f);
+                            arcTo2.setRadiusY(40f);
+
+                            ArcTo arcTo3 = new ArcTo();
+                            arcTo3.setX(280f);
+                            arcTo3.setY(160f);
+                            arcTo3.setRadiusX(40f);
+                            arcTo3.setRadiusY(40f);
+
+                            path.getElements().add(new MoveTo(40f, 35f));
+                            path.getElements().add(new LineTo(40f, 160f));
+                            path.getElements().add(arcTo2);
+                            path.getElements().add(new LineTo(240f, 200f));
+                            path.getElements().add(arcTo3);
+                            path.getElements().add(new LineTo(280f, 115f));
 
                         }
                         PathTransition pathTransition = new PathTransition();
                         pathTransition.setDuration(Duration.millis(4000));
                         pathTransition.setPath(path);
                         pathTransition.setNode(cPath);
-                        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+                       // pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
                         pathTransition.setCycleCount(1);
                         pathTransition.setAutoReverse(true);
 
@@ -191,12 +357,15 @@ public class Main extends Application{
             }
         }
         tileCounter = 0;
+        rot.toFront();
+        circle.toFront();
+
         return root;
     }
 
     private Parent createMiddle() throws IOException {
         Pane root = new Pane();
-        root.setPrefSize(320,320);
+        root.setPrefSize(320,240);
         //Creating a Text object
         Text text = new Text();
         Button btn = new Button("Hell yeah!");
@@ -205,32 +374,69 @@ public class Main extends Application{
                 btnClicked = true;
             }
         });
-        text.setText("Congratulations! You are done with level " + (level-1)  + "\n Are you ready for Level " + level);
-        text.setX(20);
-        text.setY(50);
-        btn.setLayoutX(50);
-        btn.setLayoutY(150);
-        root.getChildren().add(text);
+
+        btn.setLayoutX(110);
+        btn.setLayoutY(200);
+
+        try {
+            input4 = new FileInputStream("images/nailed.jpg");
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        Image jpg = new Image(input4);
+        ImageView nailed = new ImageView(jpg);
+        nailed.setFitHeight(240);
+        nailed.setFitWidth(320);
+        Label lb3 = new Label ("",nailed);
+        root.getChildren().add(lb3);
+        lb3.setTranslateX(0);
+        lb3.setTranslateY(0);
+
+        Label lb4 = new Label (level + "");
+        root.getChildren().add(lb4);
+        lb4.setTranslateX(233);
+        lb4.setTranslateY(175);
+        lb4.setTextFill(Color.WHITE);
+
         root.getChildren().add(btn);
         return root;
     }
 
     private Parent createFinish(Stage primaryStage) throws IOException {
         Pane root = new Pane();
-        root.setPrefSize(320,320);
+        root.setPrefSize(533,320);
         //Creating a Text object
         Text text = new Text();
+
+        try {
+            input4 = new FileInputStream("images/finish.jpg");
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        Image jpg = new Image(input4);
+        ImageView finish = new ImageView(jpg);
+        finish.setFitHeight(320);
+        finish.setFitWidth(533);
+        Label lb3 = new Label ("",finish);
+        root.getChildren().add(lb3);
+        lb3.setTranslateX(0);
+        lb3.setTranslateY(0);
+
         Button btn = new Button("çıkış");
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 primaryStage.close();
             }
         });
-        text.setText("Helal len bitti oyun ");
+        text.setText("Moves Level 1:  " + movesArray[0] + "\n" +
+                "Moves Level 2:  " + movesArray[1] + "\n" +
+                "Moves Level 3:  " + movesArray[2] + "\n" +
+                "Moves  Level 4:  " + movesArray[3] + "\n" +
+                "Moves 5:  " + movesArray[4] + "\n");
         text.setX(50);
         text.setY(50);
-        btn.setLayoutX(50);
-        btn.setLayoutY(150);
+        btn.setLayoutX(130);
+        btn.setLayoutY(270);
 
         root.getChildren().add(text);
         root.getChildren().add(btn);
@@ -242,12 +448,15 @@ public class Main extends Application{
             primaryStage.setTitle("Rolling Puzzle Game");
             primaryStage.setScene(new Scene(createBegin(primaryStage)));
             primaryStage.setResizable(false);
-            primaryStage.show();
+
+        primaryStage.show();
 
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if(level==2){
+                    movesArray[level-2] = moveCounter;
+                    moveCounter = 0;
                     try {
                         createMiddleScene(primaryStage);
                     } catch (IOException e) {
@@ -260,6 +469,8 @@ public class Main extends Application{
                             @Override
                             public void handle(long now) {
                                 if(level==3){
+                                    movesArray[level-2] = moveCounter;
+                                    moveCounter = 0;
                                     try {
                                         createMiddleScene(primaryStage);
                                     } catch (IOException e) {
@@ -272,6 +483,8 @@ public class Main extends Application{
                                         @Override
                                         public void handle(long now) {
                                             if(level==4){
+                                                movesArray[level-2] = moveCounter;
+                                                moveCounter = 0;
                                                 try {
                                                     createMiddleScene(primaryStage);
                                                 } catch (IOException e) {
@@ -284,6 +497,8 @@ public class Main extends Application{
                                                     @Override
                                                     public void handle(long now) {
                                                         if(level==5){
+                                                            movesArray[level-2] = moveCounter;
+                                                            moveCounter = 0;
                                                             try {
                                                                 createMiddleScene(primaryStage);
                                                             } catch (IOException e) {
@@ -295,8 +510,9 @@ public class Main extends Application{
                                                                 @Override
                                                                 public void handle(long now) {
                                                                     if(level==6){
+                                                                        movesArray[level-2] = moveCounter;
+                                                                        moveCounter = 0;
                                                                         try {
-                                                                            System.out.println("burdayım");
                                                                             createMiddleScene(primaryStage);
                                                                         } catch (IOException e) {
                                                                             e.printStackTrace();

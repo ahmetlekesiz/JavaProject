@@ -3,6 +3,7 @@ module RollingPuzzle {
     requires javafx.controls;
     requires java.datatransfer;
     requires java.desktop;
+    requires javafx.media;
 
     opens sample;
 }
