@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -45,7 +46,7 @@ public class Main extends Application{
     private int pressedItemI, pressedItemJ;
     private Tile tempObj = new Tile();
     private double tempX, tempY;
-    private static int level = 5;
+    private static int level = 1;
     AnimationTimer timer;
     AnimationTimer timer2;
     AnimationTimer timer3;
@@ -57,6 +58,7 @@ public class Main extends Application{
     private int movesArray[] = new int[5];
     FileInputStream input3;
     FileInputStream input4;
+    private int totalMove = 0;
 
     private Parent createBegin(Stage primaryStage) throws IOException {
         Pane root = new Pane();
@@ -117,6 +119,12 @@ public class Main extends Application{
         return root;
     }
 
+    public void calculateMove(){
+        for(int i=0; i<5; i++){
+            totalMove = totalMove + movesArray[i];
+        }
+    }
+
     private Parent createStory(Stage primaryStage) throws IOException {
         Pane root = new Pane();
         root.setPrefSize(600,350);
@@ -136,7 +144,7 @@ public class Main extends Application{
         mediaPlayer.setCycleCount(s);
         mediaPlayer.play();
         mediaPlayer.setAutoPlay(true);
-        mediaPlayer.setVolume(0.01);
+        mediaPlayer.setVolume(0.2);
         MediaView mediaView = new MediaView(mediaPlayer);
 
         FileInputStream input = new FileInputStream("images/story.png");
@@ -182,7 +190,6 @@ public class Main extends Application{
         root.getChildren().add(mediaView);
         return root;
     }
-
 
     private Parent createContent() throws IOException {
         System.out.println("level: " + level);
@@ -403,6 +410,7 @@ public class Main extends Application{
     }
 
     private Parent createFinish(Stage primaryStage) throws IOException {
+        calculateMove();
         Pane root = new Pane();
         root.setPrefSize(533,320);
         //Creating a Text object
@@ -422,20 +430,22 @@ public class Main extends Application{
         lb3.setTranslateX(0);
         lb3.setTranslateY(0);
 
-        Button btn = new Button("çıkış");
+
+
+
+        Button btn = new Button("Exit");
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 primaryStage.close();
             }
         });
-        text.setText("Moves Level 1:  " + movesArray[0] + "\n" +
-                "Moves Level 2:  " + movesArray[1] + "\n" +
-                "Moves Level 3:  " + movesArray[2] + "\n" +
-                "Moves  Level 4:  " + movesArray[3] + "\n" +
-                "Moves 5:  " + movesArray[4] + "\n");
-        text.setX(50);
-        text.setY(50);
-        btn.setLayoutX(130);
+
+        text.setText(String.valueOf(totalMove));
+        text.setX(290);
+        text.setY(260);
+        text.setFill(Color.YELLOW);
+        text.setStyle("font-size: 20px;");
+        btn.setLayoutX(190);
         btn.setLayoutY(270);
 
         root.getChildren().add(text);
